@@ -1,2 +1,2 @@
-# Backend-internship
+# Backend-django
 tasks
