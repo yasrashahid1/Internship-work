@@ -13,6 +13,8 @@ import Home from "./ui/pages/Home";
 import Login from "./ui/pages/Login";
 import Register from "./ui/pages/Register";
 import Dashboard from "./ui/pages/Dashboard";
+import CardDetail from "./ui/pages/CardDetail";
+
 
 function Bootstrapper({ children }) {
   const dispatch = useDispatch();
@@ -32,6 +34,8 @@ ReactDOM.createRoot(document.getElementById("root")).render(
   <Route path="/register" element={<Register />} />
   <Route element={<ProtectedRoute />}>
   <Route path="/dashboard" element={<Dashboard />} />
+
+  <Route path="/cards/:id" element={<ProtectedRoute> <CardDetail /></ProtectedRoute>}/>
   </Route>
 </Routes>
         </Bootstrapper>
