@@ -165,3 +165,8 @@ CORS_ALLOW_CREDENTIALS = True
 AUTH_USER_MODEL = "core.User"
 
 LLOWED_HOSTS = ["127.0.0.1", "localhost"]
+
+
+
+
+DEBUG = True

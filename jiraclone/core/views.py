@@ -38,6 +38,4 @@ class TicketViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        return Ticket.objects.filter(reporter=user).union(
-            Ticket.objects.filter(assignee=user)
-        )
+        return Ticket.objects.filter(reporter=user) | Ticket.objects.filter(assignee=user)

@@ -1,0 +1,132 @@
+.ticket-container {
+    padding: 24px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  
+  .ticket-back {
+    text-decoration: none;
+    color: #444;
+    font-size: 14px;
+  }
+  
+  .ticket-card {
+    margin-top: 20px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    padding: 24px;
+    color: #222;
+  }
+  
+  .ticket-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .ticket-title {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 600;
+  }
+  
+  .ticket-id {
+    color: #666;
+    font-size: 16px;
+    font-weight: 400;
+  }
+  
+  .ticket-status {
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: bold;
+  }
+  
+  .ticket-status.done {
+    background: #d4edda;
+    color: #155724;
+  }
+  
+  .ticket-status.in_progress {
+    background: #fff3cd;
+    color: #856404;
+  }
+  
+  .ticket-status.todo,
+  .ticket-status.review {
+    background: #e2e3e5;
+    color: #444;
+  }
+  
+  .ticket-description {
+    margin-top: 16px;
+    font-size: 15px;
+    line-height: 1.6;
+    color: #222;
+    white-space: pre-wrap;
+  }
+  
+  .ticket-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-top: 20px;
+  }
+  
+  .ticket-label {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+  }
+  
+  .ticket-value {
+    font-size: 15px;
+    font-weight: 500;
+    color: #222;
+  }
+  
+  .ticket-actions {
+    margin-top: 30px;
+    display: flex;
+    gap: 12px;
+  }
+  
+  .btn {
+    padding: 8px 14px;
+    border-radius: 6px;
+    border: none;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  
+  .btn-primary {
+    background-color: #007bff;
+    color: #fff;
+  }
+  
+  .btn-primary:hover {
+    background-color: #0069d9;
+  }
+  
+  .btn-success {
+    background-color: #28a745;
+    color: #fff;
+  }
+  
+  .btn-success:hover {
+    background-color: #218838;
+  }
+  
+  .btn-danger {
+    background-color: #dc3545;
+    color: #fff;
+  }
+  
+  .btn-danger:hover {
+    background-color: #c82333;
+  }
+  

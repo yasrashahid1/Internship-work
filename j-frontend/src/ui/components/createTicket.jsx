@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { createTicket, selectTicketCreating, selectTicketCreateError } from "../../features/tickets";
 
+
 export default function CreateTicketModal({ onClose }) {
   const dispatch = useDispatch();
   const creating = useSelector(selectTicketCreating);
@@ -10,13 +11,14 @@ export default function CreateTicketModal({ onClose }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [status, setStatus] = useState("todo");
+  const [priority, setPriority] = useState("medium");
 
   async function submit(e) {
     e.preventDefault();
     if (!title.trim() || creating === "loading") return;
 
     const res = await dispatch(
-      createTicket({ title: title.trim(), description, status })
+      createTicket({ title: title.trim(), description, status, priority })
     );
 
     if (createTicket.fulfilled.match(res)) onClose();
@@ -24,8 +26,10 @@ export default function CreateTicketModal({ onClose }) {
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
+    
       <div className="modal" onClick={(e) => e.stopPropagation()}>
         <h2 style={{ marginTop: 0 }}>Create ticket</h2>
+
 
         <form onSubmit={submit}>
           <label className="lbl">Title</label>
@@ -56,6 +60,17 @@ export default function CreateTicketModal({ onClose }) {
             <option value="in_progress">In Progress</option>
             <option value="review">In Review</option>
             <option value="done">Done</option>
+          </select>
+
+           <label className="lbl mt-12">Priority</label>
+          <select
+            className="input mt-8"
+            value={priority}
+            onChange={(e) => setPriority(e.target.value)}
+          >
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
           </select>
 
           {createError && (

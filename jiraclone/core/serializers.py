@@ -36,8 +36,12 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 
 class TicketSerializer(serializers.ModelSerializer):
-    reporter = serializers.StringRelatedField(read_only=True)
-    assignee = serializers.StringRelatedField(read_only=True)
+    reporter = serializers.CharField(
+        source="reporter.username", read_only=True
+    )
+    assignee = serializers.CharField(
+        source="assignee.username", read_only=True, default=None
+    )
     assignee_id = serializers.PrimaryKeyRelatedField(
         source="assignee",
         queryset=User.objects.all(),
@@ -53,7 +57,7 @@ class TicketSerializer(serializers.ModelSerializer):
             "title",
             "description",
             "status",
-            "priority",        
+            "priority",
             "reporter",
             "assignee",
             "assignee_id",

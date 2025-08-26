@@ -10,7 +10,6 @@ export const loginUser = createAsyncThunk(
       localStorage.setItem("access", data.access);
       localStorage.setItem("refresh", data.refresh);
 
-      // getting profile for welcome//
       const me = await api.get("auth/me/");
       return me.data;
     } catch (err) {
