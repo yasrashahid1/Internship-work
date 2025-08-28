@@ -77,7 +77,7 @@ export default function TicketDetail() {
   
       {ticket && (
         <div className="ticket-card">
-          {/* Header */}
+         
           <div className="ticket-header">
             <h2 className="ticket-title">
               {ticket.title || "Untitled"}{" "}
@@ -88,12 +88,12 @@ export default function TicketDetail() {
             </span>
           </div>
   
-          {/* Description */}
+          
           <p className="ticket-description">
             {ticket.description || "No description provided."}
           </p>
   
-          {/* Grid info */}
+        
           <div className="ticket-grid">
             <Item label="Priority" value={prettyPriority(ticket.priority)} />
             <Item label="Reporter" value={ticket.reporter ?? "—"} />
@@ -102,7 +102,7 @@ export default function TicketDetail() {
             <Item label="Updated" value={fmt(ticket.updated_at)} />
           </div>
   
-          {/* Actions */}
+         
           <div className="ticket-actions">
             <button
               className={`btn ${ticket.status === "done" ? "btn-success" : "btn-primary"}`}
@@ -161,3 +161,5 @@ function prettyPriority(p) {
     default: return p || "—";
   }
 }
+
+
