@@ -1,4 +1,5 @@
 from rest_framework.views import APIView
+from django.db.models import Q
 from rest_framework.response import Response
 from rest_framework import status, permissions
 from rest_framework import viewsets, permissions
@@ -37,5 +38,16 @@ class TicketViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        user = self.request.user
-        return Ticket.objects.filter(reporter=user) | Ticket.objects.filter(assignee=user)
+       
+        queryset = Ticket.objects.all().order_by("-created_at")
+
+       
+        search = self.request.query_params.get("search")
+        if search:
+            queryset = queryset.filter(
+                Q(title__icontains=search) | Q(description__icontains=search)
+            )
+
+        return queryset
+
+
