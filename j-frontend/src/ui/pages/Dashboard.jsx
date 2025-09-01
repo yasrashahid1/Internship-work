@@ -18,7 +18,8 @@ import "./dashboard.css";
 
 const STATUSES = ["todo", "in_progress", "review", "done"];
 
-export default function Board() {
+export default function Board()
+ {
   const dispatch = useDispatch();
   const nav = useNavigate();
 
@@ -28,11 +29,21 @@ export default function Board() {
 
   const [openCreate, setOpenCreate] = useState(false);
 
+  const [query, setQuery] = useState("");
+
   useEffect(() => {
-    dispatch(fetchTickets());
+    dispatch(fetchTickets(""));  
   }, [dispatch]);
 
-  async function handleLogout() {
+  function handleSearch(e) 
+  {
+    const value = e.target.value;
+    setQuery(value);
+    dispatch(fetchTickets(value));
+    }
+
+  async function handleLogout()
+   {
     await dispatch(logoutUser());
     nav("/login", { replace: true });
   }
@@ -88,17 +99,18 @@ export default function Board() {
           </div>
         </div>
 
-        <nav className="jb-nav">
-          <SidebarLink to="/backlog"   label="Backlog" />
+       <nav className="jb-nav">
+           {/*<SidebarLink to="/backlog"   label="Backlog" />*/}
           <SidebarLink to="/dashboard" label="Board" active />
-          <SidebarLink to="/reports"   label="Reports" />
+           {/*<SidebarLink to="/reports"   label="Reports" />
           <SidebarLink to="/releases"  label="Releases" />
           <SidebarLink to="/components" label="Components" />
           <SidebarLink to="/issues"    label="Issues" />
           <SidebarLink to="/repository" label="Repository" />
           <SidebarLink to="/add-item"  label="Add item" />
-          <SidebarLink to="/settings"  label="Settings" />
-        </nav>
+          <SidebarLink to="/settings"  label="Settings" />*/}
+
+        </nav>   
 
         <div className="jb-user">
           <div className="jb-avatar sm" aria-hidden />
@@ -112,19 +124,28 @@ export default function Board() {
         </div>
       </aside>
 
-     
       <main className="jb-main">
-        <header className="jb-top">
-          <h1>Tickets Board</h1>
-          <div className="jb-actions">
-            <div className="jb-search-wrap">
-              <input className="jb-search" placeholder="Search" />
-            </div>
-            <button className="jb-btn create" onClick={() => setOpenCreate(true)}>
-              Create Ticket
-            </button>
-          </div>
-        </header>
+
+      <header className="jb-top">
+  <div className="jb-left">
+    <h1>Tickets Board</h1>
+    <div className="jb-search-wrap">
+      <input
+        className="jb-search"
+        placeholder="Search tickets..."
+        value={query}
+        onChange={handleSearch}
+      />
+    </div>
+  </div>
+
+  <div className="jb-right">
+    <button className="jb-btn create" onClick={() => setOpenCreate(true)}>
+      Create Ticket
+    </button>
+  </div>
+</header>
+
 
         {status === "loading" ? (
           <div style={{ padding: 25 }}>Loading…</div>
@@ -167,7 +188,7 @@ export default function Board() {
 
 
                                 <div className="jb-card-meta">
-                                  <div className="jb-id">{t?.key ?? `Ticket-${t?.id}`}</div>
+                                  <div className="jb-id">{t?.key ?? `JCT-${t?.id}`}</div>
                                   {t?.status !== "done" && (
                                     <button
                                       className="jb-btn tiny"
