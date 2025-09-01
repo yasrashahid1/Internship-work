@@ -32,7 +32,7 @@ export default function Login() {
       if (err?.detail || err?.error === "Invalid credentials") {
         setLocalError(" Incorrect username or password.");
       } else {
-        setLocalError("⚠️ Login failed. Please try again.");
+        setLocalError(" Login failed. Please try again.");
       }
     }
   }

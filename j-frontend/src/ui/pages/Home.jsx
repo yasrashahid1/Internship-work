@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 
-export default function Home() {
+export default function Home()
+ {
   return (
     <div className="container">
       <div className="card" style={{ textAlign: "center", padding: "2rem" }}>
@@ -17,5 +18,5 @@ export default function Home() {
         </div>
       </div>
     </div>
-  );
-}
+  ); 
+} 

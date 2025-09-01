@@ -1,73 +1,216 @@
+import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+
 import { logoutUser } from "../../features/authmodule/actions";
 import { selectAuthDisplayName } from "../../features/authmodule/selectors";
 
-export default function Dashboard() {
+import {
+  fetchTickets,
+  updateTicket,            
+  selectTickets,
+  selectTicketsStatus,
+} from "../../features/tickets";
+
+import CreateTicketModal from "../components/createTicket";
+import "./dashboard.css";
+
+const STATUSES = ["todo", "in_progress", "review", "done"];
+
+export default function Board() {
   const dispatch = useDispatch();
   const nav = useNavigate();
-  const displayName = useSelector(selectAuthDisplayName);
+
+  const name   = useSelector(selectAuthDisplayName) ?? "User";
+  const tickets = useSelector(selectTickets) || [];
+  const status  = useSelector(selectTicketsStatus) || "idle";
+
+  const [openCreate, setOpenCreate] = useState(false);
+
+  useEffect(() => {
+    dispatch(fetchTickets());
+  }, [dispatch]);
 
   async function handleLogout() {
     await dispatch(logoutUser());
     nav("/login", { replace: true });
   }
 
+
+  const grouped = useMemo(() => {
+    const map = Object.fromEntries(STATUSES.map((s) => [s, []]));
+    for (const t of tickets) {
+      const s = t?.status || "todo";
+      (map[s] ?? map["todo"]).push(t);
+    }
+    return map;
+  }, [tickets]);
+
+  
+  async function onDragEnd(result) {
+    const { destination, source, draggableId } = result || {};
+    if (!destination || !source) return;
+
+    const from = source.droppableId;
+    const to   = destination.droppableId;
+    if (from === to && destination.index === source.index) return;
+
+    const idNum = Number(draggableId);
+    if (!Number.isFinite(idNum)) return;
+
+    try {
+      await dispatch(updateTicket({ id: idNum, data: { status: to } }));
+    } catch (e) {
+      console.error("Failed to move ticket", e);
+    }
+  }
+
+ 
+  const markDone = (id) => async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      await dispatch(updateTicket({ id, data: { status: "done" } }));
+    } catch (err) {
+      console.error("Failed to complete ticket", err);
+    }
+  };
+
   return (
-    <div className="container">
-      <div
-        className="card"
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          gap: 12,
-          marginBottom: 16,
-        }}
-      >
-        <div>
-          <h2>Welcome, {displayName ?? "User"} 👋</h2>
-          <p className="muted">Choose an option below to get started.</p>
+    <div className="jb-root">
+      <aside className="jb-sidebar">
+        <div className="jb-team">
+          <div className="jb-avatar" aria-hidden />
+          <div>
+            <div className="jb-team-name">jiraclone</div>
+            <div className="jb-team-sub">Software project</div>
+          </div>
         </div>
-        <button className="btn btn-ghost" onClick={handleLogout}>
-          Logout
-        </button>
-      </div>
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-          gap: 16,
-        }}
-      >
-        <Link
-          to="/projects"
-          className="card"
-          style={{ textDecoration: "none", color: "inherit" }}
-        >
-          <h3>Projects</h3>
-          <p className="muted">View and manage projects.</p>
-        </Link>
+        <nav className="jb-nav">
+          <SidebarLink to="/backlog"   label="Backlog" />
+          <SidebarLink to="/dashboard" label="Board" active />
+          <SidebarLink to="/reports"   label="Reports" />
+          <SidebarLink to="/releases"  label="Releases" />
+          <SidebarLink to="/components" label="Components" />
+          <SidebarLink to="/issues"    label="Issues" />
+          <SidebarLink to="/repository" label="Repository" />
+          <SidebarLink to="/add-item"  label="Add item" />
+          <SidebarLink to="/settings"  label="Settings" />
+        </nav>
 
-        <Link
-          to="/tickets"
-          className="card"
-          style={{ textDecoration: "none", color: "inherit" }}
-        >
-          <h3>Tickets</h3>
-          <p className="muted">Track issues and tasks.</p>
-        </Link>
+        <div className="jb-user">
+          <div className="jb-avatar sm" aria-hidden />
+          <div>
+            <div className="jb-user-name">{name}</div>
+            <div className="jb-user-email">Signed in</div>
+          </div>
+          <button className="jb-logout" onClick={handleLogout}>
+            Logout
+          </button>
+        </div>
+      </aside>
 
-        <Link
-          to="/profile"
-          className="card"
-          style={{ textDecoration: "none", color: "inherit" }}
-        >
-          <h3>Profile</h3>
-          <p className="muted">Update your details.</p>
-        </Link>
-      </div>
+     
+      <main className="jb-main">
+        <header className="jb-top">
+          <h1>Tickets Board</h1>
+          <div className="jb-actions">
+            <div className="jb-search-wrap">
+              <input className="jb-search" placeholder="Search" />
+            </div>
+            <button className="jb-btn create" onClick={() => setOpenCreate(true)}>
+              Create Ticket
+            </button>
+          </div>
+        </header>
+
+        {status === "loading" ? (
+          <div style={{ padding: 25 }}>Loading…</div>
+        ) : (
+          <DragDropContext onDragEnd={onDragEnd}>
+            <section className="jb-columns">
+              {STATUSES.map((statusKey) => (
+                <Droppable droppableId={statusKey} key={statusKey}>
+                  {(provided) => (
+                    <div className="jb-col" ref={provided.innerRef} {...provided.droppableProps}>
+                      <div className="jb-col-head">
+                        <span className="jb-col-title">
+                          {pretty(statusKey)}{" "}
+                          <span className="jb-count">{(grouped[statusKey] || []).length}</span>
+                        </span>
+                        <button className="jb-col-menu" aria-label="Column actions">⋯</button>
+                      </div>
+
+                      <div className="jb-col-body">
+                        {(grouped[statusKey] || []).map((t, index) => (
+                          <Draggable key={t.id} draggableId={String(t.id)} index={index}>
+                            {(drag) => (
+                              <Link
+                                to={`/cards/${t.id}`}
+                                className="jb-card"
+                                ref={drag.innerRef}
+                                {...drag.draggableProps}
+                                {...drag.dragHandleProps}
+                                style={{ ...drag.draggableProps.style }}
+                              >
+                             
+                                <div className="jb-label-row">
+                                  <span className="jb-chip">{truncate(t?.title || "Untitled", 28)}</span>
+                                </div>
+
+                              
+                                <p className="jb-card-title" style={{ marginTop: 6 }}>
+                                  {truncate(t?.description || "—", 140)}
+                                </p>
+
+
+                                <div className="jb-card-meta">
+                                  <div className="jb-id">{t?.key ?? `Ticket-${t?.id}`}</div>
+                                  {t?.status !== "done" && (
+                                    <button
+                                      className="jb-btn tiny"
+                                      onClick={markDone(t.id)}
+                                      title="Mark complete"
+                                    >
+                                      Complete
+                                    </button>
+                                  )}
+                                </div>
+                              </Link>
+                            )}
+                          </Draggable>
+                        ))}
+                        {provided.placeholder}
+                      </div>
+                    </div>
+                  )}
+                </Droppable>
+              ))}
+            </section>
+          </DragDropContext>
+        )}
+      </main>
+
+      {openCreate && <CreateTicketModal onClose={() => setOpenCreate(false)} />}
     </div>
   );
+}
+
+function SidebarLink({ to, label, active }) {
+  return (
+    <Link to={to} className={`jb-nav-link ${active ? "active" : ""}`}>
+      {label}
+    </Link>
+  );
+}
+
+function pretty(s) {
+  return s.replace(/_/g, " ").replace(/\b\w/g, (m) => m.toUpperCase());
+}
+
+function truncate(s, n) {
+  s = s || "";
+  return s.length > n ? s.slice(0, n - 1) + "…" : s;
 }

@@ -13,10 +13,13 @@ import Home from "./ui/pages/Home";
 import Login from "./ui/pages/Login";
 import Register from "./ui/pages/Register";
 import Dashboard from "./ui/pages/Dashboard";
+import TicketDetail from "./ui/pages/TicketDetail"; 
 
 function Bootstrapper({ children }) {
   const dispatch = useDispatch();
-  React.useEffect(()=>{ dispatch(fetchMe()); }, [dispatch]);
+  React.useEffect(() => {
+    dispatch(fetchMe());
+  }, [dispatch]);
   return children;
 }
 
@@ -27,13 +30,20 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <Bootstrapper>
           <NavBar />
           <Routes>
-  <Route path="/" element={<Home />} />
-  <Route path="/login" element={<Login />} />
-  <Route path="/register" element={<Register />} />
-  <Route element={<ProtectedRoute />}>
-  <Route path="/dashboard" element={<Dashboard />} />
-  </Route>
-</Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+
+            <Route element={<ProtectedRoute />}>
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/cards/:id" element={<TicketDetail />} />
+            </Route>
+
+            <Route
+              path="*"
+              element={<div style={{ padding: 20 }}>404 – Not Found</div>}
+            />
+          </Routes>
         </Bootstrapper>
       </BrowserRouter>
     </Provider>

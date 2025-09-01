@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import User, Role
+from .models import Ticket
 
 class UserSerializer(serializers.ModelSerializer):
     role = serializers.StringRelatedField(allow_null=True)
@@ -31,3 +32,40 @@ class RegisterSerializer(serializers.ModelSerializer):
             user.save()
 
         return user
+
+
+
+class TicketSerializer(serializers.ModelSerializer):
+    reporter = serializers.CharField(
+        source="reporter.username", read_only=True
+    )
+    assignee = serializers.CharField(
+        source="assignee.username", read_only=True, default=None
+    )
+    assignee_id = serializers.PrimaryKeyRelatedField(
+        source="assignee",
+        queryset=User.objects.all(),
+        required=False,
+        allow_null=True,
+        write_only=True,
+    )
+
+    class Meta:
+        model = Ticket
+        fields = [
+            "id",
+            "title",
+            "description",
+            "status",
+            "priority",
+            "reporter",
+            "assignee",
+            "assignee_id",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = ["id", "reporter", "assignee", "created_at", "updated_at"]
+
+    def create(self, validated_data):
+        validated_data["reporter"] = self.context["request"].user
+        return super().create(validated_data)

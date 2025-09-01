@@ -1,0 +1,126 @@
+:root{
+    --bg:#f5f6f9;
+    --sidebar:#0b3a8a;
+    --surface:#ffffff;
+    --muted:#7a8190;
+    --border:#e6e8ef;
+    --primary:#0052cc;
+  }
+  
+  *{box-sizing:border-box}
+  a{ text-decoration:none; color:inherit }
+  
+  .jb-root{ display:flex; min-height:100vh; background:var(--bg); color:#1f2937; }
+  
+
+  .jb-sidebar{
+    width:280px; background:#0c4fb3; color:#fff; display:flex; flex-direction:column;
+    padding:18px 16px; gap:16px;
+  }
+  .jb-team{ display:flex; gap:12px; align-items:center; padding:6px 8px; }
+  .jb-avatar{ width:40px; height:40px; border-radius:8px; background:#89c0ff; }
+  .jb-avatar.sm{ width:28px; height:28px; }
+  .jb-team-name{ font-weight:700 }
+  .jb-team-sub{ font-size:12px; opacity:.9 }
+  
+  .jb-nav{ display:flex; flex-direction:column; gap:6px; margin-top:10px; }
+  .jb-nav-link{
+    padding:10px 12px; border-radius:8px; color:#eaf1ff;
+  }
+  .jb-nav-link:hover{ background:rgba(255,255,255,.14) }
+  .jb-nav-link.active{ background:rgba(255,255,255,.22); font-weight:600 }
+  
+  .jb-user{
+    margin-top:auto; display:flex; align-items:center; gap:10px;
+    padding:10px; background:rgba(255,255,255,.12); border-radius:10px;
+  }
+  .jb-user-name{ font-weight:600 }
+  .jb-user-email{ font-size:12px; opacity:.9 }
+  .jb-logout{
+    margin-left:auto; background:transparent; color:#fff; border:1px solid rgba(255,255,255,.5);
+    border-radius:8px; padding:6px 10px; cursor:pointer;
+  }
+  .jb-logout:hover{ background:rgba(255,255,255,.1) }
+ 
+
+  .jb-main{ flex:1; padding:22px 26px; overflow:auto; }
+  .jb-top{ display:flex; justify-content:space-between; align-items:center; }
+  .jb-top h1{ margin:0; font-size:22px }
+  
+  .jb-actions{ display:flex; gap:10px; align-items:center }
+  .jb-search-wrap{ position:relative }
+  .jb-search{ min-width:220px; padding:10px 12px; border:1px solid var(--border); border-radius:8px; background:#fff }
+  .jb-btn{
+    border:none; background:var(--primary); color:#fff; padding:10px 12px; border-radius:8px; cursor:pointer;
+  }
+  .jb-btn.outline{
+    background:transparent; color:var(--primary); border:1px solid #bcd2ff;
+  }
+  .jb-btn:hover{ filter:brightness(.95) }
+  
+
+  .jb-columns{
+    display:grid; grid-template-columns: repeat(4, minmax(260px,1fr)); gap:16px; margin-top:16px;
+  }
+  .jb-col{
+    background:var(--surface); border:1px solid var(--border); border-radius:8px; display:flex; flex-direction:column;
+  }
+  .jb-col-head{
+    display:flex; justify-content:space-between; align-items:center; padding:10px 12px; background:#f3f6fb; border-bottom:1px solid var(--border);
+  }
+  .jb-col-title{ font-size:12px; font-weight:700; color:#475569; letter-spacing:.4px }
+  .jb-count{ background:#e8eefc; color:#1744a7; padding:2px 8px; border-radius:999px; margin-left:6px; font-weight:700 }
+  .jb-col-menu{ border:none; background:transparent; cursor:pointer; font-size:18px; color:#64748b }
+  
+  .jb-col-body{ padding:12px; display:flex; flex-direction:column; gap:12px }
+  
+
+  .jb-card{
+    background:#fff; border:1px solid var(--border); border-radius:8px; padding:10px; display:block;
+    box-shadow:0 1px 0 rgba(16,24,40,.04);
+  }
+  .jb-card:hover{ border-color:#cdd6ee; box-shadow:0 3px 8px rgba(16,24,40,.08) }
+  
+  .jb-label-row{ display:flex; gap:6px; margin-bottom:8px }
+.jb-chip {
+  background: #ffd666; 
+  color: #5b4a00;
+}
+.jb-btn.tiny {
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+
+  
+  .jb-card-title{ margin:0 0 10px 0; min-height:18px } 
+  .jb-card-meta{ display:flex; justify-content:space-between; align-items:center; color:var(--muted); font-size:12px }
+  
+  .i{ display:inline-block; width:16px; height:16px; background:#e5e7eb; border-radius:4px; margin-right:4px }
+  .i:last-child{ margin-right:0 }
+  
+  @media (max-width:1100px){
+    .jb-columns{ grid-template-columns: repeat(2, minmax(260px,1fr)); }
+  }
+  @media (max-width:640px){
+    .jb-sidebar{ display:none }
+    .jb-columns{ grid-template-columns: 1fr; }
+  }
+  
+
+  .btn {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+  }
+  .btn-primary { background: #2563eb; color: #fff; }
+  .btn-primary:hover { background: #1d4ed8; }
+  
+  .btn-success { background: #16a34a; color: #fff; }
+  .btn-success:hover { background: #15803d; }
+  
+  .btn-danger { background: #dc2626; color: #fff; }
+  .btn-danger:hover { background: #b91c1c; }
+  
