@@ -18,9 +18,12 @@ const ticketsSlice = createSlice({
       state.status = "loading";
       state.error = null;
     });
+
     builder.addCase(fetchTickets.fulfilled, (state, action) => {
       state.status = "succeeded";
-      state.items = action.payload;
+      if (Array.isArray(action.payload)) {
+        state.items = action.payload;  
+      }
     });
     builder.addCase(fetchTickets.rejected, (state, action) => {
       state.status = "failed";

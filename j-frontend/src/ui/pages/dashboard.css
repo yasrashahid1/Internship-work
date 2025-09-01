@@ -48,8 +48,43 @@
   .jb-top h1{ margin:0; font-size:22px }
   
   .jb-actions{ display:flex; gap:10px; align-items:center }
-  .jb-search-wrap{ position:relative }
-  .jb-search{ min-width:220px; padding:10px 12px; border:1px solid var(--border); border-radius:8px; background:#fff }
+
+  .jb-search-wrap { 
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  
+  .jb-search {
+    min-width: 220px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: white;
+  }
+  
+  .jb-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+  
+  .jb-left {
+    display: flex;
+    align-items: center;
+    gap: 16px; 
+  }
+  
+  .jb-right {
+    display: flex;
+    align-items: center;
+  }
+  
+
+
+
+
   .jb-btn{
     border:none; background:var(--primary); color:#fff; padding:10px 12px; border-radius:8px; cursor:pointer;
   }
