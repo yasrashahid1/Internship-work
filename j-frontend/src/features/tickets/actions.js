@@ -24,3 +24,18 @@ export const deleteTicket = createAsyncThunk("tickets/delete", async (id) => {
   return id; 
   
 });
+
+
+export const bulkUploadTickets = createAsyncThunk(
+  "tickets/bulkUpload",
+  async (file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const { data } = await api.post("tickets/bulk-upload/", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+
+    return data; 
+  }
+);

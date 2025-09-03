@@ -1,9 +1,13 @@
+from rest_framework.decorators import action
 from rest_framework.views import APIView
 from django.db.models import Q
 from rest_framework.response import Response
 from rest_framework import status, permissions
 from rest_framework import viewsets, permissions
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.decorators import action
+from rest_framework.parsers import MultiPartParser, FormParser
+import pandas as pd
 from .serializers import RegisterSerializer, UserSerializer
 from .models import Ticket
 from .serializers import TicketSerializer
@@ -36,6 +40,7 @@ class MeView(APIView):
 class TicketViewSet(viewsets.ModelViewSet):
     serializer_class = TicketSerializer
     permission_classes = [permissions.IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
 
     def get_queryset(self):
        
@@ -49,5 +54,44 @@ class TicketViewSet(viewsets.ModelViewSet):
             )
 
         return queryset
+
+
+class BulkUploadTicketsView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
+
+    def post(self, request):
+        file = request.FILES.get("file")
+        if not file:
+            return Response({"error": "No file uploaded"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+        try:
+            if file.name.endswith(".csv"):
+                df = pd.read_csv(file)
+            elif file.name.endswith(".xlsx"):
+                df = pd.read_excel(file)
+            else:
+                return Response({"error": "Unsupported file format (use .csv or .xlsx)"}, 
+                                status=status.HTTP_400_BAD_REQUEST) 
+                                
+
+            tickets = []
+            for _, row in df.iterrows():
+                ticket = Ticket.objects.create(
+                    title=row.get("title", ""),
+                    description=row.get("description", ""),
+                    status=row.get("status", "todo"),
+                    priority=row.get("priority", "medium"),
+                    reporter=request.user, 
+                )
+                tickets.append(ticket)
+
+
+            serializer = TicketSerializer(tickets, many=True)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
