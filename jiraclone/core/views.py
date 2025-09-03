@@ -56,11 +56,15 @@ class TicketViewSet(viewsets.ModelViewSet):
         return queryset
 
 
-    @action(detail=False, methods=["post"], url_path="bulk_upload")
-    def bulk_upload(self, request):
+class BulkUploadTicketsView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
+
+    def post(self, request):
         file = request.FILES.get("file")
         if not file:
             return Response({"error": "No file uploaded"}, status=status.HTTP_400_BAD_REQUEST)
+
 
         try:
             if file.name.endswith(".csv"):
@@ -83,7 +87,9 @@ class TicketViewSet(viewsets.ModelViewSet):
                 )
                 tickets.append(ticket)
 
-            return Response({"created": len(tickets)}, status=status.HTTP_201_CREATED)
+
+            serializer = TicketSerializer(tickets, many=True)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
