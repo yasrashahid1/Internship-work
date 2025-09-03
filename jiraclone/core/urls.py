@@ -10,8 +10,6 @@ urlpatterns = [
     path("auth/register/", RegisterView.as_view()),
     path("auth/login/", TokenObtainPairView.as_view(), name="jwt_login"),  
     path("auth/refresh/", TokenRefreshView.as_view(), name="jwt_refresh"),
-     path("auth/me/", MeView.as_view(), name="me"),
-
-     
-     path("", include(router.urls)),
+    path("auth/me/", MeView.as_view(), name="me"),   
+    path("", include(router.urls)),
 ]
