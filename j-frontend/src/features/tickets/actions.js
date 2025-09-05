@@ -14,10 +14,14 @@ export const createTicket = createAsyncThunk("tickets/create", async (payload) =
   return data;
 });
 
-export const updateTicket = createAsyncThunk("tickets/update", async ({ id, data: body }) => {
-  const { data } = await api.patch(`tickets/${id}/`, body); 
+export const updateTicket = createAsyncThunk("tickets/update", 
+  async ({ id, data: body }) => {
+  const { data } = await api.patch(`tickets/${id}/`, body, {
+    headers: {"Content-Type": "application/json"},
+  }); 
   return data;
 });
+
 
 export const deleteTicket = createAsyncThunk("tickets/delete", async (id) => {
   await api.delete(`tickets/${id}/`);  

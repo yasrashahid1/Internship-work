@@ -198,6 +198,7 @@ export default function Board()
                           index={index}
                         >                        
                             {(drag) => (
+                              <div>
                               <Link
                                 to={`/cards/${t.id}`}
                                 className="jb-card"
@@ -219,6 +220,12 @@ export default function Board()
 
                                 <div className="jb-card-meta">
                                   <div className="jb-id">{t?.key ?? `JCT-${t?.id}`}</div>
+
+                                   <div className="jb-users">
+                                    <span className="jb-reporter">Reporter: {t?.reporter || "—"}
+                                    </span>
+                                  </div>
+
                                   {t?.status !== "done" && (
                                     <button
                                       className="jb-btn tiny"
@@ -230,6 +237,7 @@ export default function Board()
                                   )}
                                 </div>
                               </Link>
+                              </div>
                             )}
                           </Draggable>
                         ))}
