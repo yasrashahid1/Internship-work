@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, Role
+from .models import User, Role, Comment
 from .models import Ticket
 
 class UserSerializer(serializers.ModelSerializer):
@@ -34,14 +34,25 @@ class RegisterSerializer(serializers.ModelSerializer):
         return user
 
 
+class UserSimpleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["id", "username", "email"]
+
+
+
+class CommentSerializer(serializers.ModelSerializer):   
+    user = UserSimpleSerializer(read_only=True)
+
+    class Meta:
+        model = Comment
+        fields = ["id", "user", "text", "created_at"]
+
 
 class TicketSerializer(serializers.ModelSerializer):
-    reporter = serializers.CharField(
-        source="reporter.username", read_only=True
-    )
-    assignee = serializers.CharField(
-        source="assignee.username", read_only=True, default=None
-    )
+    reporter = serializers.CharField(source="reporter.username", read_only=True)
+    assignee = serializers.CharField(source="assignee.username", read_only=True, default=None)
+
     assignee_id = serializers.PrimaryKeyRelatedField(
         source="assignee",
         queryset=User.objects.all(),
@@ -49,6 +60,8 @@ class TicketSerializer(serializers.ModelSerializer):
         allow_null=True,
         write_only=True,
     )
+
+    comments = CommentSerializer(many=True, read_only=True)
 
     class Meta:
         model = Ticket
@@ -61,11 +74,14 @@ class TicketSerializer(serializers.ModelSerializer):
             "reporter",
             "assignee",
             "assignee_id",
+            "comments",
             "created_at",
             "updated_at",
         ]
-        read_only_fields = ["id", "reporter", "assignee", "created_at", "updated_at"]
+        read_only_fields = ["id", "reporter", "assignee", "comments", "created_at", "updated_at"]
 
     def create(self, validated_data):
         validated_data["reporter"] = self.context["request"].user
         return super().create(validated_data)
+
+

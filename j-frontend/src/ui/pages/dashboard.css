@@ -27,12 +27,21 @@
   .jb-nav-link{
     padding:10px 12px; border-radius:8px; color:#eaf1ff;
   }
-  .jb-nav-link:hover{ background:rgba(255,255,255,.14) }
+  .jb-nav-link:hover{background:rgba(255,255,255,.14) }
   .jb-nav-link.active{ background:rgba(255,255,255,.22); font-weight:600 }
   
   .jb-user{
     margin-top:auto; display:flex; align-items:center; gap:10px;
     padding:10px; background:rgba(255,255,255,.12); border-radius:10px;
+  }
+
+  .jb-reporter {
+    font-weight: 500;
+    color: #1d4ed8; 
+  }
+  .jb-assignee {
+    font-weight: 500;
+    color: #059669; 
   }
   .jb-user-name{ font-weight:600 }
   .jb-user-email{ font-size:12px; opacity:.9 }

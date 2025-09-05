@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { fetchTickets, createTicket, updateTicket, deleteTicket } from "./actions";
+import { fetchTickets, createTicket, updateTicket, deleteTicket, bulkUploadTickets,} from "./actions";
 
 const initialState = {
   items: [],             
@@ -61,7 +61,14 @@ const ticketsSlice = createSlice({
       const id = action.payload;
       state.items = state.items.filter((t) => t.id !== id);
     });
+
+
+
+    builder.addCase(bulkUploadTickets.fulfilled, (state, action) => {
+      state.items = [...action.payload, ...state.items]; 
+      });
   },
 });
+
 
 export default ticketsSlice.reducer;
