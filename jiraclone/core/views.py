@@ -9,9 +9,9 @@ from rest_framework.decorators import action
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 import pandas as pd
 from .serializers import RegisterSerializer, UserSerializer
-from .models import Ticket, Comment
+from .models import Ticket, Comment, Tag
 from .models import User
-from .serializers import TicketSerializer, CommentSerializer
+from .serializers import TicketSerializer, CommentSerializer, TagSerializer
 import logging
 
 
@@ -139,6 +139,14 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = User.objects.all().order_by("username")
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+
+
+class TagViewSet(viewsets.ModelViewSet):
+    queryset = Tag.objects.all().order_by("name")
+    serializer_class = TagSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
     
 
 
