@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { createTicket, selectTicketCreating, selectTicketCreateError } from "../../features/tickets";
+import { api } from "../../services/api";
 
 
 export default function CreateTicketModal({ onClose }) {
@@ -12,13 +13,43 @@ export default function CreateTicketModal({ onClose }) {
   const [description, setDescription] = useState("");
   const [status, setStatus] = useState("todo");
   const [priority, setPriority] = useState("medium");
+  const [assigneeId, setAssigneeId] = useState("");   
+  const [users, setUsers] = useState([]); 
+  const [tags, setTags] = useState([]);
+  const [selectedTags, setSelectedTags] = useState([]);
+
+
+  useEffect(() => {
+    async function fetchUsers() {
+      try {
+        const { data } = await api.get("users/"); 
+        setUsers(data);
+      } catch (err) {
+        console.error("Failed to load users", err);
+      }
+    }
+    async function fetchTags() {
+      try {
+        const { data } = await api.get("tags/");
+        setTags(data);
+      } catch (err) {
+        console.error("Failed to load tags", err);
+      }
+    }
+    fetchUsers();
+    fetchTags();
+  }, []);
 
   async function submit(e) {
     e.preventDefault();
     if (!title.trim() || creating === "loading") return;
 
     const res = await dispatch(
-      createTicket({ title: title.trim(), description, status, priority })
+      createTicket({
+         title: title.trim(), description, status, priority, 
+         assignee_id: assigneeId || null,
+         tag_ids: selectedTags.map(Number),
+       })
     );
 
     if (createTicket.fulfilled.match(res)) onClose();
@@ -26,11 +57,10 @@ export default function CreateTicketModal({ onClose }) {
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
-    
       <div className="modal" onClick={(e) => e.stopPropagation()}>
         <h2 style={{ marginTop: 0 }}>Create ticket</h2>
 
-
+        
         <form onSubmit={submit}>
           <label className="lbl">Title</label>
           <input
@@ -73,17 +103,58 @@ export default function CreateTicketModal({ onClose }) {
             <option value="high">High</option>
           </select>
 
+          <label className="lbl mt-12">Assign To</label>
+          <select
+            className="input mt-8"
+            value={assigneeId}
+            onChange={(e) => setAssigneeId(e.target.value)}
+          >
+            <option value="">Unassigned</option>
+            {users.map((u) => (
+              <option key={u.id} value={u.id}>
+                {u.username}
+              </option>
+            ))}
+          </select>
+
+           {/* 🔹 Tags multi-select */}
+           <label className="lbl mt-12">Tags</label>
+          <select
+            multiple
+            className="input mt-8"
+            value={selectedTags}
+            onChange={(e) =>
+              setSelectedTags(
+                Array.from(e.target.selectedOptions, (option) => option.value)
+              )
+            }
+          >
+            {tags.map((t) => (
+              <option key={t.id} value={t.id}>
+                {t.name}
+              </option>
+            ))}
+          </select>
+          <small className="help-text">
+            Hold <b>Ctrl</b> (Windows) or <b>Cmd</b> (Mac) to select multiple 
+          </small>
+
           {createError && (
             <div className="error mt-12">{String(createError)}</div>
           )}
 
-          <div className="mt-16" style={{ display: "flex", gap: 8 }}>
+          <div className="mt-16" 
+          style={{ display: "flex", justifyContent:"space-between", alignItems:"center" }}>
             <button className="btn btn-primary" disabled={creating === "loading"}>
               {creating === "loading" ? "Creating…" : "Create"}
-            </button>
-            <button type="button" className="btn btn-ghost" onClick={onClose}>
-              Cancel
-            </button>
+              </button>
+              <button
+              type="button"
+              className="btn btn-danger"
+              onClick={onClose}
+              >
+              Close
+             </button>
           </div>
         </form>
       </div>

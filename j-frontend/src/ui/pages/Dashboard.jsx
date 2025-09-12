@@ -1,3 +1,4 @@
+import { api } from "../../services/api";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -5,6 +6,7 @@ import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 
 import { logoutUser } from "../../features/authmodule/actions";
 import { selectAuthDisplayName } from "../../features/authmodule/selectors";
+import { bulkUploadTickets } from "../../features/tickets/actions";
 
 import {
   fetchTickets,
@@ -30,6 +32,7 @@ export default function Board()
   const [openCreate, setOpenCreate] = useState(false);
 
   const [query, setQuery] = useState("");
+  const [selectedTag, setSelectedTag] = useState(null);
 
   useEffect(() => {
     dispatch(fetchTickets(""));  
@@ -48,15 +51,32 @@ export default function Board()
     nav("/login", { replace: true });
   }
 
-
+  async function handleFileUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+  
+    try {
+      await dispatch(bulkUploadTickets(file));
+      alert("File uploaded successfully ");
+      dispatch(fetchTickets());
+    } catch (err) {
+      alert("Upload failed ");
+      console.error(err);
+    }
+  }
+  
+  
   const grouped = useMemo(() => {
     const map = Object.fromEntries(STATUSES.map((s) => [s, []]));
     for (const t of tickets) {
+      if (selectedTag && !(t.tags || []).some(tag => tag.name === selectedTag)) {
+        continue; 
+      }
       const s = t?.status || "todo";
       (map[s] ?? map["todo"]).push(t);
     }
     return map;
-  }, [tickets]);
+  }, [tickets, selectedTag]);
 
   
   async function onDragEnd(result) {
@@ -100,15 +120,15 @@ export default function Board()
         </div>
 
        <nav className="jb-nav">
-           {/*<SidebarLink to="/backlog"   label="Backlog" />*/}
+          <SidebarLink to="/backlog"   label="Backlog" />
           <SidebarLink to="/dashboard" label="Board" active />
-           {/*<SidebarLink to="/reports"   label="Reports" />
+          <SidebarLink to="/reports"   label="Reports" />
           <SidebarLink to="/releases"  label="Releases" />
           <SidebarLink to="/components" label="Components" />
           <SidebarLink to="/issues"    label="Issues" />
           <SidebarLink to="/repository" label="Repository" />
           <SidebarLink to="/add-item"  label="Add item" />
-          <SidebarLink to="/settings"  label="Settings" />*/}
+          <SidebarLink to="/settings"  label="Settings" />
 
         </nav>   
 
@@ -137,7 +157,28 @@ export default function Board()
         onChange={handleSearch}
       />
     </div>
-  </div>
+
+    <label className="jb-btn upload" style={{ marginLeft: "10px", cursor: "pointer" }}>
+        Upload Tickets from a file
+        <input
+          type="file"
+          accept=".xlsx,.csv"
+          onChange={handleFileUpload}
+          style={{ display: "none" }} 
+        />
+      </label>
+
+      {selectedTag && (
+      <button
+        className="jb-btn"
+        style={{ marginLeft: "10px", background: "#ef4444", color: "white" }}
+        onClick={() => setSelectedTag(null)}
+      >
+        Clear filter ({selectedTag})
+      </button>
+    )}
+    
+    </div>
 
   <div className="jb-right">
     <button className="jb-btn create" onClick={() => setOpenCreate(true)}>
@@ -166,8 +207,13 @@ export default function Board()
 
                       <div className="jb-col-body">
                         {(grouped[statusKey] || []).map((t, index) => (
-                          <Draggable key={t.id} draggableId={String(t.id)} index={index}>
+                          <Draggable 
+                          key={t.id || `temp-${index}`} 
+                          draggableId={String(t.id || `temp-${index}`)} 
+                          index={index}
+                        >                        
                             {(drag) => (
+                              <div>
                               <Link
                                 to={`/cards/${t.id}`}
                                 className="jb-card"
@@ -185,10 +231,40 @@ export default function Board()
                                 <p className="jb-card-title" style={{ marginTop: 6 }}>
                                   {truncate(t?.description || "—", 140)}
                                 </p>
-
+                                
+ { t?.tags?.length > 0 && (
+  <div className="jb-tags" style={{ marginTop: 6, display: "flex", flexWrap: "wrap", gap: "4px" }}>
+    {t.tags.map((tag) => (
+      <span
+        key={tag.id}
+        className="jb-chip"
+        onClick={(e) => {
+          e.preventDefault(); 
+          setSelectedTag(tag.name);
+        }}
+        style={{
+          background: selectedTag === tag.name ? "#1d4ed8" : "#e0e7ff",
+          color: selectedTag === tag.name ? "#fff" : "#1d4ed8",
+          fontSize: "12px",
+          padding: "2px 6px",
+          borderRadius: "12px",
+          cursor: "pointer",
+        }}
+      >
+        {tag.name}
+      </span>
+    ))}
+  </div>
+)}
 
                                 <div className="jb-card-meta">
                                   <div className="jb-id">{t?.key ?? `JCT-${t?.id}`}</div>
+
+                                   <div className="jb-users">
+                                    <span className="jb-reporter">Reporter: {t?.reporter || "—"}
+                                    </span>
+                                  </div>
+
                                   {t?.status !== "done" && (
                                     <button
                                       className="jb-btn tiny"
@@ -200,6 +276,7 @@ export default function Board()
                                   )}
                                 </div>
                               </Link>
+                              </div>
                             )}
                           </Draggable>
                         ))}

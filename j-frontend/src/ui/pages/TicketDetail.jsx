@@ -16,6 +16,10 @@ export default function TicketDetail() {
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
+
+  const [newComment, setNewComment] = useState("");
+  const [adding, setAdding] = useState(false);
+
   useEffect(() => {
     let alive = true;
     (async () => {
@@ -66,6 +70,25 @@ export default function TicketDetail() {
     }
   }
 
+  async function handleAddComment(e) {
+    e.preventDefault();
+    if (!newComment.trim()) return;
+    setAdding(true);
+    try {
+      const { data } = await api.post(`tickets/${id}/comment/`, { text: newComment });
+      setTicket((prev) => ({
+        ...prev,
+        comments: [...(prev.comments || []), data],
+      }));
+      setNewComment("");
+    } catch (err) {
+      alert("Failed to add comment");
+      console.error(err);
+    } finally {
+      setAdding(false);
+    }
+  }
+
   return (
     <div className="ticket-container">
       <Link to="/dashboard" className="ticket-back">
@@ -92,6 +115,29 @@ export default function TicketDetail() {
           <p className="ticket-description">
             {ticket.description || "No description provided."}
           </p>
+
+          {/* 🔹 Tags Section */}
+{ticket.tags?.length > 0 && (
+  <div className="ticket-tags" style={{ margin: "12px 0", display: "flex", flexWrap: "wrap", gap: "6px" }}>
+    {ticket.tags.map((tag) => (
+      <span
+        key={tag.id}
+        className="ticket-tag"
+        style={{
+          background: "yellow",
+          color: "blue",
+          fontSize: "13px",
+          padding: "3px 8px",
+          borderRadius: "14px",
+          fontWeight: 500,
+        }}
+      >
+        {tag.name}
+      </span>
+    ))}
+  </div>
+)}
+
   
         
           <div className="ticket-grid">
@@ -124,11 +170,41 @@ export default function TicketDetail() {
               {deleting ? "Deleting…" : "Delete"}
             </button>
           </div>
+
+          <div className="ticket-comments">
+            <h3>Comments</h3>
+            {ticket.comments?.length > 0 ? (
+              <ul>
+                {ticket.comments.map((c) => (
+                  <li key={c.id}>
+                    <strong>{c.user.username}:</strong> {c.text}{" "}
+                    <em>({fmt(c.created_at)})</em>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>No comments yet.</p>
+            )}
+
+            <form onSubmit={handleAddComment} style={{ marginTop: "12px" }}>
+              <textarea
+                className="input"
+                rows={2}
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                placeholder="Add a comment..."
+              />
+              <button className="btn btn-primary mt-8" disabled={adding}>
+                {adding ? "Adding…" : "Add Comment"}
+              </button>
+            </form>
+          </div>
         </div>
       )}
     </div>
   );
 }
+
 
 function Item({ label, value }) {
   return (

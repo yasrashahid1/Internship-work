@@ -1,6 +1,6 @@
 from rest_framework import serializers
-from .models import User, Role
-from .models import Ticket
+from .models import User, Role, Comment
+from .models import Ticket, Tag
 
 class UserSerializer(serializers.ModelSerializer):
     role = serializers.StringRelatedField(allow_null=True)
@@ -34,14 +34,32 @@ class RegisterSerializer(serializers.ModelSerializer):
         return user
 
 
+class UserSimpleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["id", "username", "email"]
+
+
+
+class CommentSerializer(serializers.ModelSerializer):   
+    user = UserSimpleSerializer(read_only=True)
+
+    class Meta:
+        model = Comment
+        fields = ["id", "user", "text", "created_at"]
+
+
+class TagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tag 
+        fields = ["id", "name"]
+
+
 
 class TicketSerializer(serializers.ModelSerializer):
-    reporter = serializers.CharField(
-        source="reporter.username", read_only=True
-    )
-    assignee = serializers.CharField(
-        source="assignee.username", read_only=True, default=None
-    )
+    reporter = serializers.CharField(source="reporter.username", read_only=True)
+    assignee = serializers.CharField(source="assignee.username", read_only=True, default=None)
+
     assignee_id = serializers.PrimaryKeyRelatedField(
         source="assignee",
         queryset=User.objects.all(),
@@ -50,6 +68,16 @@ class TicketSerializer(serializers.ModelSerializer):
         write_only=True,
     )
 
+    comments = CommentSerializer(many=True, read_only=True)
+
+    tags = TagSerializer(many=True, read_only=True)
+    tag_ids = serializers.PrimaryKeyRelatedField(
+    source="tags",
+    queryset=Tag.objects.all(),  
+    many=True,
+    required=False,
+    write_only=True,
+)
     class Meta:
         model = Ticket
         fields = [
@@ -61,11 +89,31 @@ class TicketSerializer(serializers.ModelSerializer):
             "reporter",
             "assignee",
             "assignee_id",
+            "tags",
+            "tag_ids",
+            "comments",
             "created_at",
             "updated_at",
         ]
-        read_only_fields = ["id", "reporter", "assignee", "created_at", "updated_at"]
+        read_only_fields = ["id", "reporter", "assignee", "comments", "created_at", "updated_at"]
+
+
+
 
     def create(self, validated_data):
+        tags = validated_data.pop("tags", [])
         validated_data["reporter"] = self.context["request"].user
-        return super().create(validated_data)
+        ticket = super().create(validated_data)
+        if tags:
+            ticket.tags.set(tags)
+        return ticket
+
+    def update(self, instance, validated_data):
+        tags = validated_data.pop("tags", None)
+        ticket = super().update(instance, validated_data)
+        if tags is not None:
+            ticket.tags.set(tags)
+        return ticket
+
+
+
