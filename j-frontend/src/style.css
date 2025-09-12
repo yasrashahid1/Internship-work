@@ -31,9 +31,9 @@ body{
   position: sticky; top:0; z-index:10;
   display:flex; align-items:center; gap:16px;
   padding:14px 20px;
-  background: linear-gradient(180deg, rgb(7, 39, 104), rgb(17, 77, 151));
-  border-bottom: 1px solid var(--border);
-  box-shadow: 0 10px 24px black;
+  background: linear-gradient(180deg, rgb(72, 111, 196), rgb(29, 71, 122));
+   /*border-bottom: 1px solid var(--border);*/
+  /*box-shadow: 0 10px 24px black; */
 }
 .brand{ font-weight:700; letter-spacing:.3px; color:var(--text); text-decoration:none; }
 .spacer{ flex:1; }

@@ -115,6 +115,29 @@ export default function TicketDetail() {
           <p className="ticket-description">
             {ticket.description || "No description provided."}
           </p>
+
+          {/* 🔹 Tags Section */}
+{ticket.tags?.length > 0 && (
+  <div className="ticket-tags" style={{ margin: "12px 0", display: "flex", flexWrap: "wrap", gap: "6px" }}>
+    {ticket.tags.map((tag) => (
+      <span
+        key={tag.id}
+        className="ticket-tag"
+        style={{
+          background: "yellow",
+          color: "blue",
+          fontSize: "13px",
+          padding: "3px 8px",
+          borderRadius: "14px",
+          fontWeight: 500,
+        }}
+      >
+        {tag.name}
+      </span>
+    ))}
+  </div>
+)}
+
   
         
           <div className="ticket-grid">

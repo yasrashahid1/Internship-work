@@ -15,6 +15,8 @@ export default function CreateTicketModal({ onClose }) {
   const [priority, setPriority] = useState("medium");
   const [assigneeId, setAssigneeId] = useState("");   
   const [users, setUsers] = useState([]); 
+  const [tags, setTags] = useState([]);
+  const [selectedTags, setSelectedTags] = useState([]);
 
 
   useEffect(() => {
@@ -26,7 +28,16 @@ export default function CreateTicketModal({ onClose }) {
         console.error("Failed to load users", err);
       }
     }
+    async function fetchTags() {
+      try {
+        const { data } = await api.get("tags/");
+        setTags(data);
+      } catch (err) {
+        console.error("Failed to load tags", err);
+      }
+    }
     fetchUsers();
+    fetchTags();
   }, []);
 
   async function submit(e) {
@@ -34,7 +45,11 @@ export default function CreateTicketModal({ onClose }) {
     if (!title.trim() || creating === "loading") return;
 
     const res = await dispatch(
-      createTicket({ title: title.trim(), description, status, priority, assignee_id: assigneeId || null, })
+      createTicket({
+         title: title.trim(), description, status, priority, 
+         assignee_id: assigneeId || null,
+         tag_ids: selectedTags.map(Number),
+       })
     );
 
     if (createTicket.fulfilled.match(res)) onClose();
@@ -101,6 +116,28 @@ export default function CreateTicketModal({ onClose }) {
               </option>
             ))}
           </select>
+
+           {/* 🔹 Tags multi-select */}
+           <label className="lbl mt-12">Tags</label>
+          <select
+            multiple
+            className="input mt-8"
+            value={selectedTags}
+            onChange={(e) =>
+              setSelectedTags(
+                Array.from(e.target.selectedOptions, (option) => option.value)
+              )
+            }
+          >
+            {tags.map((t) => (
+              <option key={t.id} value={t.id}>
+                {t.name}
+              </option>
+            ))}
+          </select>
+          <small className="help-text">
+            Hold <b>Ctrl</b> (Windows) or <b>Cmd</b> (Mac) to select multiple 
+          </small>
 
           {createError && (
             <div className="error mt-12">{String(createError)}</div>
